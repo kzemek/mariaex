@@ -102,12 +102,14 @@ defmodule QueryTest do
     :ok = query("CREATE TABLE #{table} (id serial, bin binary(16), str varchar(16))", [])
 
     :ok = query(~s{INSERT INTO #{table} (id, bin, str) VALUES (?, ?, ?)},
-                [1, {:binary, binary}, {:string, string}])
+                [1, %Mariaex.TypedValue{type: :binary, value: binary},
+                 %Mariaex.TypedValue{type: :string, value: string}])
 
     assert query("SELECT bin, str from #{table} WHERE id = ?", [1]) == [[binary, string]]
 
     assert query("SELECT bin, str from #{table} WHERE id = ? AND bin = ? AND str = ?",
-                 [1, {:binary, binary}, {:string, string}]) == [[binary, string]]
+                 [1, %Mariaex.TypedValue{type: :binary, value: binary},
+                  %Mariaex.TypedValue{type: :string, value: string}]) == [[binary, string]]
   end
 
   test "support numeric data types using prepared statements", context do
